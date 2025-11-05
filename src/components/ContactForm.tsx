@@ -1,0 +1,282 @@
+"use client";
+
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Send, CheckCircle } from "lucide-react";
+
+interface FormData {
+  fullName: string;
+  email: string;
+  contactNumber: string;
+  eventType: string;
+  eventDate: string;
+  venue: string;
+  message: string;
+}
+
+const ContactForm = () => {
+  const [formData, setFormData] = useState<FormData>({
+    fullName: "",
+    email: "",
+    contactNumber: "",
+    eventType: "Wedding",
+    eventDate: "",
+    venue: "",
+    message: "",
+  });
+  const [status, setStatus] = useState<"idle" | "success">("idle");
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Fake form submission
+    console.log("Form Data:", formData);
+
+    // Fake success message
+    setStatus("success");
+
+    // Reset form
+    setFormData({
+      fullName: "",
+      email: "",
+      contactNumber: "",
+      eventType: "Wedding",
+      eventDate: "",
+      venue: "",
+      message: "",
+    });
+  };
+
+  return (
+    <section
+      id="contact"
+      className="relative bg-linear-to-b from-black to-gray-900"
+    >
+      <div className="section-container">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="heading-secondary">
+            Check <span className="text-gold-gradient">Availability</span>
+          </h2>
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+            Ready to start planning your special day? Fill out the form below
+            and we&apos;ll get back to you within 24 hours to discuss how we can
+            bring your vision to life.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto"
+        >
+          {status === "success" ? (
+            <div className="bg-linear-to-br from-green-500/20 to-green-700/20 border border-green-500/30 rounded-xl p-8 text-center">
+              <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
+              <h3 className="text-2xl font-serif font-bold text-white mb-2">
+                Thank You for Your Inquiry!
+              </h3>
+              <p className="text-gray-300 mb-6">
+                We&apos;ve received your message and will get back to you within
+                24 hours. We&apos;re excited to help make your event
+                unforgettable!
+              </p>
+              <button
+                onClick={() => setStatus("idle")}
+                className="btn-secondary"
+              >
+                Submit Another Inquiry
+              </button>
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              className="bg-linear-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm p-8 md:p-10 rounded-xl border border-gold-500/10 shadow-xl"
+            >
+              {/* Name */}
+              <div className="mb-6">
+                <label
+                  htmlFor="fullName"
+                  className="block text-white font-medium mb-2"
+                >
+                  Full Name <span className="text-gold-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
+                  placeholder="Juan & Maria Dela Cruz"
+                />
+              </div>
+
+              {/* Email & Phone */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-white font-medium mb-2"
+                  >
+                    Email Address <span className="text-gold-400">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
+                    placeholder="your@email.com"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="contactNumber"
+                    className="block text-white font-medium mb-2"
+                  >
+                    Contact Number <span className="text-gold-400">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    id="contactNumber"
+                    name="contactNumber"
+                    value={formData.contactNumber}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
+                    placeholder="+63 912 345 6789"
+                  />
+                </div>
+              </div>
+
+              {/* Event Type & Date */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label
+                    htmlFor="eventType"
+                    className="block text-white font-medium mb-2"
+                  >
+                    Event Type <span className="text-gold-400">*</span>
+                  </label>
+                  <select
+                    id="eventType"
+                    name="eventType"
+                    value={formData.eventType}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
+                  >
+                    <option value="Wedding">Wedding</option>
+                    <option value="Debut">Debut</option>
+                    <option value="Corporate">Corporate Event</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="eventDate"
+                    className="block text-white font-medium mb-2"
+                  >
+                    Preferred Event Date{" "}
+                    <span className="text-gold-400">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    id="eventDate"
+                    name="eventDate"
+                    value={formData.eventDate}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Venue */}
+              <div className="mb-6">
+                <label
+                  htmlFor="venue"
+                  className="block text-white font-medium mb-2"
+                >
+                  Venue / Location <span className="text-gold-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="venue"
+                  name="venue"
+                  value={formData.venue}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
+                  placeholder="e.g., Manila, Cebu, or specific venue name"
+                />
+              </div>
+
+              {/* Message */}
+              <div className="mb-6">
+                <label
+                  htmlFor="message"
+                  className="block text-white font-medium mb-2"
+                >
+                  Message / Special Requests
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  rows={5}
+                  className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all resize-none"
+                  placeholder="Tell us more about your vision, guest count, or any specific requirements..."
+                />
+              </div>
+
+              {/* Privacy Notice */}
+              <div className="mb-6 p-4 bg-gold-500/10 border border-gold-500/20 rounded-lg">
+                <p className="text-sm text-gray-300">
+                  By submitting this form, you agree to be contacted by Memoriza
+                  Events Management about event availability and coordination
+                  services. We respect your privacy and will never share your
+                  information.
+                </p>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="w-full btn-primary flex items-center justify-center gap-2"
+              >
+                <Send size={20} />
+                Submit Inquiry
+              </button>
+            </form>
+          )}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+export default ContactForm;
