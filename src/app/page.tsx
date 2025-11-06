@@ -4,6 +4,7 @@ import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import Portfolio from "@/components/Portfolio";
 import Services from "@/components/Services";
+import ScrollButton from "@/components/ScrollButton";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Services />
       <ContactForm />
       <Footer />
+      <ScrollButton />
     </main>
   );
 }

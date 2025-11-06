@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -33,11 +34,16 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <div className="shrink-0">
-            <h1 className="text-2xl md:text-3xl font-serif font-bold text-gold-400">
-              Memoriza
-            </h1>
-          </div>
+          <a href="#home" className="shrink-0 cursor-pointer">
+            <Image
+              src="/logo.png"
+              alt="Memoriza Events Management"
+              width={120}
+              height={40}
+              className="h-8 w-auto sm:h-10 md:h-12 transition-all duration-300"
+              priority
+            />
+          </a>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
@@ -75,7 +81,7 @@ const Navbar = () => {
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-white hover:text-gold-400 transition-colors duration-300 font-medium py-2"
+                className="block text-center text-white hover:text-gold-400 transition-colors duration-300 font-medium py-2"
               >
                 {link.name}
               </a>
