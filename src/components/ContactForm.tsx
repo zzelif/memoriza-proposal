@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Send, CheckCircle, AlertCircle, Calendar } from "lucide-react";
 import { format, addDays } from "date-fns";
+import RecaptchaWrapper, { RecaptchaWrapperHandle } from "./RecaptchaWrapper";
+import VenueSelector from "./VenueSelector";
 
 interface FormData {
   fullName: string;
@@ -30,9 +32,13 @@ const ContactForm = () => {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const recaptchaRef = useRef<RecaptchaWrapperHandle>(null);
 
   // Calculate minimum date (2 days from now)
   const minDate = format(addDays(new Date(), 2), "yyyy-MM-dd");
+
+  // reCAPTCHA site key from environment variable
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -72,6 +78,18 @@ const ContactForm = () => {
     setStatus("loading");
 
     try {
+      // Execute reCAPTCHA v3 - runs invisibly in background
+      let token: string;
+      try {
+        if (!recaptchaRef.current) {
+          throw new Error("reCAPTCHA not initialized");
+        }
+        token = await recaptchaRef.current.execute();
+      } catch (recaptchaError) {
+        console.error("reCAPTCHA execution failed:", recaptchaError);
+        throw new Error("reCAPTCHA verification failed. Please try again.");
+      }
+
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
@@ -85,6 +103,7 @@ const ContactForm = () => {
           eventDate: formData.eventDate,
           venue: formData.venue,
           message: formData.message,
+          recaptchaToken: token,
         }),
       });
 
@@ -298,7 +317,7 @@ const ContactForm = () => {
                 </div>
               </div>
 
-              {/* Venue */}
+              {/* Venue / Location with Search & Map Options */}
               <div className="mb-6">
                 <label
                   htmlFor="venue"
@@ -306,15 +325,11 @@ const ContactForm = () => {
                 >
                   Venue / Location <span className="text-gold-400">*</span>
                 </label>
-                <input
-                  type="text"
-                  id="venue"
-                  name="venue"
+                <VenueSelector
                   value={formData.venue}
-                  onChange={handleChange}
+                  onChange={(value: string) => setFormData({ ...formData, venue: value })}
+                  placeholder="Search for venue or location..."
                   required
-                  className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all"
-                  placeholder="e.g., Manila, Cebu, or specific venue name"
                 />
               </div>
 
@@ -380,6 +395,13 @@ const ContactForm = () => {
           )}
         </motion.div>
       </div>
+
+      {/* reCAPTCHA v3 - Invisible, loads in background */}
+      <RecaptchaWrapper
+        ref={recaptchaRef}
+        sitekey={recaptchaSiteKey}
+        action="contact_form"
+      />
     </section>
   );
 };

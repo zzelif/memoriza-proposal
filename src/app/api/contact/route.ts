@@ -22,12 +22,57 @@ interface ContactFormData {
   eventDate: string;
   venue: string;
   message: string;
+  recaptchaToken: string;
 }
 
 export async function POST(request: Request) {
   try {
     // Parse the request body
     const body: ContactFormData = await request.json();
+
+    // Verify reCAPTCHA token
+    const { recaptchaToken } = body;
+    
+    if (!recaptchaToken) {
+      return NextResponse.json(
+        { error: "reCAPTCHA verification required" },
+        { status: 400 }
+      );
+    }
+
+    // Verify the reCAPTCHA v3 token with Google
+    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+    const recaptchaVerifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
+    
+    const recaptchaResponse = await fetch(recaptchaVerifyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `secret=${recaptchaSecret}&response=${recaptchaToken}`,
+    });
+
+    const recaptchaData = await recaptchaResponse.json();
+
+    // v3 returns a score (0.0 - 1.0). Higher = more human-like
+    // Typical threshold is 0.5. Adjust if needed.
+    if (!recaptchaData.success) {
+      console.error("reCAPTCHA verification failed:", recaptchaData);
+      return NextResponse.json(
+        { error: "reCAPTCHA verification failed. Please try again." },
+        { status: 400 }
+      );
+    }
+
+    if (recaptchaData.score < 0.5) {
+      console.error("reCAPTCHA score too low:", recaptchaData.score);
+      return NextResponse.json(
+        { error: "reCAPTCHA verification failed. Please try again." },
+        { status: 400 }
+      );
+    }
+
+    console.log("✅ reCAPTCHA v3 verified successfully. Score:", recaptchaData.score);
 
     // Validate required fields
     const { fullName, email, contactNumber, eventType, eventDate, venue, message } = body;
